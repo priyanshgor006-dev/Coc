@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Our Projects — Chamber of Commerce Bhuj</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --navy: #1e3a8a;
+    --navy-dark: #172554;
+    --navy-light: #3b5bbd;
+    --gold: #d97706;
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--navy); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  /* ===== Header ===== */
+  .site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: none;
+  }
+  .logo-mark.loaded {
+    display: block;
+  }
+  .logo-text {
+    line-height: 1.2;
+    font-size: 1.2rem;
+  }
+  .logo-sub {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 480px) {
+    .header-inner { padding: 6px 16px; }
+    .logo-mark {
+      width: 56px;
+      height: 56px;
+    }
+    .logo-text { font-size: 1rem; }
+    .logo-sub { display: none; }
+  }
+
+  /* ===== Nav ===== */
+  .nav-menu ul {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-menu a {
+    display: block;
+    padding: 8px 13px;
+    border-radius: 6px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .nav-menu a:hover { background: var(--bg-soft); color: var(--navy); }
+  .nav-menu a.active,
+  .nav-menu a[aria-current="page"] {
+    background: var(--navy);
+    color: #fff;
+  }
+
+  /* ===== Hamburger ===== */
+  .nav-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .nav-toggle span {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--navy);
+    border-radius: 2px;
+    transition: transform 0.2s ease, top 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle span:nth-child(1) { top: 12px; }
+  .nav-toggle span:nth-child(2) { top: 19px; }
+  .nav-toggle span:nth-child(3) { top: 26px; }
+  .nav-toggle.open span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+
+  @media (max-width: 1080px) {
+    .nav-toggle { display: block; }
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    .nav-menu.open { display: block; }
+    .nav-menu ul { flex-direction: column; gap: 2px; }
+    .nav-menu a { padding: 11px 14px; border-radius: 6px; }
+  }
+
+  /* ===== Page header ===== */
+  .page-header {
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 20px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin: 0 0 8px;
+    color: var(--navy);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .page-header p {
+    color: var(--muted);
+    margin: 0;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===== Footer ===== */
+  .site-footer {
+    background: var(--navy-dark);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 32px 20px;
+    text-align: center;
+    font-size: 0.88rem;
+  }
+  .site-footer p { margin: 0; }
+  .site-footer .footer-brand { font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .site-footer .contact { opacity: 0.7; margin-top: 10px; font-size: 0.82rem; }
+
+  /* ===== Projects ===== */
+  .projects-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .project-group + .project-group {
+    margin-top: 48px;
+  }
+  .project-group-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .project-group-heading h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+  }
+  .project-group-heading .count {
+    font-size: 0.88rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .project-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .project-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .project-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    border-color: var(--navy-light);
+  }
+
+  .project-image {
+    aspect-ratio: 16 / 9;
+    background: var(--bg-soft);
+    overflow: hidden;
+    position: relative;
+  }
+  .project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .project-image.placeholder {
+    background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .project-body {
+    padding: 18px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .project-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+    align-self: flex-start;
+  }
+  .project-status.in-progress { background: var(--navy); }
+  .project-status.upcoming { background: var(--gold); }
+  .project-status.completed { background: #047857; }
+
+  .project-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .project-description {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.55;
+    margin: 0;
+    opacity: 0.85;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .project-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .project-date-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .project-date-label {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+    color: var(--text);
+  }
+
+  .projects-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .projects-state.error { color: #b91c1c; }
+  .projects-state .spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: proj-spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes proj-spin { to { transform: rotate(360deg); } }
+
+  /* ===== Scroll reveal animations ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+        <img id="siteLogo" class="logo-mark" alt="Chamber of Commerce Bhuj" />
+      <span class="logo-text">Chamber of Commerce Bhuj<span class="logo-sub">Kutch · Gujarat</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="directory.html">Directory</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="projects.html" class="active" aria-current="page">Projects</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="certificates.html">Certificates</a></li>
+        <li><a href="committee.html">Committee</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-header reveal">
+    <h1 class="reveal">Our Projects</h1>
+    <p class="reveal">Initiatives driving trade, industry and community progress across Kutch.</p>
+  </section>
+
+  <div class="projects-wrap">
+    <div id="projectsContainer">
+      <div class="projects-state"><div class="spinner"></div>Loading projects…</div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-brand">Chamber of Commerce Bhuj</p>
+    <p>© Chamber of Commerce Bhuj. All rights reserved.</p>
+    <p class="contact">contact@cocbhuj.org · +91 2832 XXX XXX</p>
+  </div>
+</footer>
+
+<script>
+  /* ---------- Nav toggle ---------- */
+  (function () {
+    var toggle = document.getElementById("navToggle");
+    var menu = document.getElementById("navMenu");
+    toggle.addEventListener("click", function () {
+      var open = menu.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        menu.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+
+  /* ---------- Projects listing ---------- */
+  (function () {
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    // Named supabaseClient to avoid colliding with the global `supabase` object from the CDN script.
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    var STATUS_ORDER = ["In Progress", "Upcoming", "Completed"];
+    var projectsContainer = document.getElementById("projectsContainer");
+    var allProjects = [];
+
+    function escapeHtml(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "";
+      try {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        return new Intl.DateTimeFormat("en-US", {
+          year: "numeric", month: "short", day: "numeric"
+        }).format(d);
+      } catch (e) { return ""; }
+    }
+
+    function statusClass(s) {
+      if (s === "In Progress") return "in-progress";
+      if (s === "Upcoming") return "upcoming";
+      if (s === "Completed") return "completed";
+      return "upcoming";
+    }
+
+    function imagePlaceholderSVG() {
+      return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
+    }
+
+    function createProjectCard(project) {
+      var card = document.createElement("article");
+      card.className = "project-card reveal";
+
+      // Image (or gradient placeholder)
+      var imgWrap = document.createElement("div");
+      imgWrap.className = "project-image";
+      if (project.image_url) {
+        var img = document.createElement("img");
+        img.src = project.image_url;
+        img.alt = project.title || "";
+        img.loading = "lazy";
+        img.onerror = function () {
+          imgWrap.classList.add("placeholder");
+          imgWrap.innerHTML = imagePlaceholderSVG();
+        };
+        imgWrap.appendChild(img);
+      } else {
+        imgWrap.classList.add("placeholder");
+        imgWrap.innerHTML = imagePlaceholderSVG();
+      }
+      card.appendChild(imgWrap);
+
+      // Body
+      var body = document.createElement("div");
+      body.className = "project-body";
+
+      var badge = document.createElement("span");
+      badge.className = "project-status " + statusClass(project.status || "Upcoming");
+      badge.textContent = project.status || "Upcoming";
+      body.appendChild(badge);
+
+      var title = document.createElement("h3");
+      title.className = "project-title";
+      title.textContent = project.title || "(untitled)";
+      body.appendChild(title);
+
+      if (project.description) {
+        var desc = document.createElement("p");
+        desc.className = "project-description";
+        desc.textContent = project.description;
+        body.appendChild(desc);
+      }
+
+      if (project.start_date || project.target_date) {
+        var dates = document.createElement("div");
+        dates.className = "project-dates";
+        if (project.start_date) {
+          var start = document.createElement("span");
+          start.className = "project-date-item";
+          var startLabel = document.createElement("span");
+          startLabel.className = "project-date-label";
+          startLabel.textContent = "Start:";
+          var startValue = document.createElement("span");
+          startValue.textContent = formatDate(project.start_date);
+          start.appendChild(startLabel);
+          start.appendChild(startValue);
+          dates.appendChild(start);
+        }
+        if (project.target_date) {
+          var target = document.createElement("span");
+          target.className = "project-date-item";
+          var targetLabel = document.createElement("span");
+          targetLabel.className = "project-date-label";
+          targetLabel.textContent = "Target:";
+          var targetValue = document.createElement("span");
+          targetValue.textContent = formatDate(project.target_date);
+          target.appendChild(targetLabel);
+          target.appendChild(targetValue);
+          dates.appendChild(target);
+        }
+        body.appendChild(dates);
+      }
+
+      card.appendChild(body);
+      return card;
+    }
+
+    function renderProjects() {
+      projectsContainer.innerHTML = "";
+
+      if (allProjects.length === 0) {
+        projectsContainer.innerHTML = '<div class="projects-state">No projects yet.</div>';
+        return;
+      }
+
+      // Group by status
+      var groups = {};
+      STATUS_ORDER.forEach(function (s) { groups[s] = []; });
+      allProjects.forEach(function (p) {
+        var status = p.status || "Upcoming";
+        if (!groups[status]) groups[status] = [];
+        groups[status].push(p);
+      });
+
+      // Sort each group by created_at descending (newest first)
+      STATUS_ORDER.forEach(function (status) {
+        groups[status].sort(function (a, b) {
+          var ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+          var tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return tb - ta;
+        });
+      });
+
+      // Render each non-empty group
+      STATUS_ORDER.forEach(function (status) {
+        if (groups[status].length === 0) return;
+
+        var group = document.createElement("section");
+        group.className = "project-group";
+
+        var heading = document.createElement("div");
+        heading.className = "project-group-heading";
+        var headingText = document.createElement("h2");
+        headingText.textContent = status;
+        var headingCount = document.createElement("span");
+        headingCount.className = "count";
+        headingCount.textContent = "(" + groups[status].length + ")";
+        heading.appendChild(headingText);
+        heading.appendChild(headingCount);
+        group.appendChild(heading);
+
+        var grid = document.createElement("div");
+        grid.className = "project-grid";
+        groups[status].forEach(function (p) {
+          var projectCard = createProjectCard(p);
+          grid.appendChild(projectCard);
+          if (window.__observeReveal) window.__observeReveal(projectCard);
+        });
+        group.appendChild(grid);
+
+        projectsContainer.appendChild(group);
+      });
+    }
+
+    async function loadProjects() {
+      projectsContainer.innerHTML = '<div class="projects-state"><div class="spinner"></div>Loading projects…</div>';
+      try {
+        var result = await supabaseClient
+          .from("projects")
+          .select("*");
+        if (result.error) throw result.error;
+        allProjects = result.data || [];
+        renderProjects();
+      } catch (err) {
+        console.error(err);
+        projectsContainer.innerHTML = '<div class="projects-state error">Couldn\'t load projects. ' + escapeHtml(err.message || "") + '</div>';
+      }
+    }
+
+    loadProjects();
+  })();
+
+  /* ---------- Scroll reveal animations ---------- */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+        } else {
+          entry.target.classList.remove('reveal-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      observer.observe(el);
+    });
+    window.__observeReveal = function (el) {
+      if (el) observer.observe(el);
+    };
+  })();
+
+  /* ---------- Site logo (from site_media) ---------- */
+  (function () {
+    if (typeof supabase === "undefined") return;
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var logoImg = document.getElementById("siteLogo");
+    if (!logoImg) return;
+    supabaseClient
+      .from("site_media")
+      .select("image_url")
+      .eq("type", "logo")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .then(function (result) {
+        if (result.error) {
+          console.error("Couldn't load site logo:", result.error.message);
+          return;
+        }
+        var rows = result.data || [];
+        if (rows.length > 0 && rows[0].image_url) {
+          logoImg.onload = function () { logoImg.classList.add("loaded"); };
+          logoImg.onerror = function () { console.warn("Site logo failed to load"); };
+          logoImg.src = rows[0].image_url;
+        }
+      })
+      .catch(function (err) { console.error("Logo fetch error:", err); });
+  })();
+</script>
+
+</body>
+</html>

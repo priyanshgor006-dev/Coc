@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Directory — Chamber of Commerce Bhuj</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --navy: #1e3a8a;
+    --navy-dark: #172554;
+    --navy-light: #3b5bbd;
+    --gold: #d97706;
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--navy); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  .site-header { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1200px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: relative; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy); font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+  .logo-mark { width: 84px; height: 84px; object-fit: contain; flex-shrink: 0; display: none; }
+  .logo-mark.loaded { display: block; }
+  .logo-text { line-height: 1.2; font-size: 1.2rem; }
+  .logo-sub { display: block; font-size: 0.68rem; font-weight: 500; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  @media (max-width: 480px) {
+    .header-inner { padding: 6px 16px; }
+    .logo-mark { width: 56px; height: 56px; }
+    .logo-text { font-size: 1rem; }
+    .logo-sub { display: none; }
+  }
+
+  .nav-menu ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+  .nav-menu a { display: block; padding: 8px 13px; border-radius: 6px; color: var(--text); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: background 0.12s ease, color 0.12s ease; }
+  .nav-menu a:hover { background: var(--bg-soft); color: var(--navy); }
+  .nav-menu a.active, .nav-menu a[aria-current="page"] { background: var(--navy); color: #fff; }
+
+  .nav-toggle { display: none; background: transparent; border: 1px solid var(--border); border-radius: 6px; width: 40px; height: 40px; cursor: pointer; padding: 0; position: relative; flex-shrink: 0; }
+  .nav-toggle span { position: absolute; left: 10px; right: 10px; height: 2px; background: var(--navy); border-radius: 2px; transition: transform 0.2s ease, top 0.2s ease, opacity 0.2s ease; }
+  .nav-toggle span:nth-child(1) { top: 12px; } .nav-toggle span:nth-child(2) { top: 19px; } .nav-toggle span:nth-child(3) { top: 26px; }
+  .nav-toggle.open span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+
+  @media (max-width: 960px) {
+    .nav-toggle { display: block; }
+    .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); padding: 8px 16px 16px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); }
+    .nav-menu.open { display: block; }
+    .nav-menu ul { flex-direction: column; gap: 2px; }
+    .nav-menu a { padding: 11px 14px; border-radius: 6px; }
+  }
+
+  .page-header {
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 20px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin: 0 0 8px;
+    color: var(--navy);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .page-header p { color: var(--muted); margin: 0; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+  .placeholder {
+    padding: 80px 20px;
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .placeholder-inner {
+    max-width: 520px;
+    text-align: center;
+  }
+  .placeholder-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+  }
+  .placeholder h2 {
+    font-size: 1.4rem;
+    margin: 0 0 10px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .placeholder p {
+    font-size: 0.98rem;
+    color: var(--muted);
+    margin: 0 0 24px;
+    line-height: 1.6;
+  }
+  .back-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--navy);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.92rem;
+    transition: background 0.15s ease;
+  }
+  .back-link:hover { background: var(--navy-dark); }
+
+  .site-footer { background: var(--navy-dark); color: rgba(255, 255, 255, 0.85); padding: 32px 20px; text-align: center; font-size: 0.88rem; }
+  .site-footer p { margin: 0; }
+  .site-footer .footer-brand { font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .site-footer .contact { opacity: 0.7; margin-top: 10px; font-size: 0.82rem; }
+
+  /* ===== Directory ===== */
+  .dir-controls {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 8px;
+  }
+  .search-wrap {
+    position: relative;
+    max-width: 560px;
+  }
+  .search-wrap > svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    color: var(--text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .search-input:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+  }
+  .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  .chips-scroll {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .chips-scroll::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .chip:hover { border-color: var(--navy); color: var(--navy); }
+  .chip.active {
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+  }
+
+  .results-count {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4px 20px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    min-height: 1.2em;
+  }
+
+  .dir-list-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 20px 60px;
+  }
+  .dir-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 720px) { .dir-list { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .dir-list { grid-template-columns: repeat(3, 1fr); } }
+
+  .biz-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .biz-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    border-color: var(--navy-light);
+  }
+  .biz-header {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .biz-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .biz-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .biz-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .biz-info h3 {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    word-break: break-word;
+  }
+  .biz-info .category-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    background: var(--bg-soft);
+    color: var(--navy);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border: 1px solid var(--border);
+  }
+  .biz-company {
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .biz-company-name {
+    margin-top: 4px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0.78;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .biz-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.55;
+  }
+  .biz-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+    font-size: 0.85rem;
+  }
+  .biz-contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--text);
+    text-decoration: none;
+    word-break: break-word;
+    line-height: 1.4;
+  }
+  a.biz-contact-item:hover { color: var(--navy); }
+  .biz-contact-item svg {
+    flex-shrink: 0;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .dir-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .dir-state.error { color: #b91c1c; }
+  .dir-state .spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: dir-spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes dir-spin { to { transform: rotate(360deg); } }
+
+  /* ===== Scroll reveal animations ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+        <img id="siteLogo" class="logo-mark" alt="Chamber of Commerce Bhuj" />
+      <span class="logo-text">Chamber of Commerce Bhuj<span class="logo-sub">Kutch · Gujarat</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="directory.html" class="active" aria-current="page">Directory</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="certificates.html">Certificates</a></li>
+        <li><a href="committee.html">Committee</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-header reveal">
+    <h1 class="reveal">Member Directory</h1>
+    <p class="reveal">Search registered businesses and connect with fellow members of the Chamber.</p>
+  </section>
+  <div class="dir-controls">
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input type="search" id="searchInput" class="search-input" placeholder="Search by business name…" aria-label="Search businesses" autocomplete="off" />
+    </div>
+    <div class="chips-scroll" id="chipsScroll" role="tablist" aria-label="Filter by category">
+      <!-- chips injected here -->
+    </div>
+  </div>
+  <div class="results-count" id="resultsCount" aria-live="polite"></div>
+  <div class="dir-list-wrap">
+    <div class="dir-list" id="dirList">
+      <div class="dir-state"><div class="spinner"></div>Loading directory…</div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-brand">Chamber of Commerce Bhuj</p>
+    <p>© Chamber of Commerce Bhuj. All rights reserved.</p>
+    <p class="contact">contact@cocbhuj.org · +91 2832 XXX XXX</p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var toggle = document.getElementById("navToggle");
+    var menu = document.getElementById("navMenu");
+    toggle.addEventListener("click", function () {
+      var open = menu.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        menu.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+
+  /* ---------- Scroll reveal animations ---------- */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+        } else {
+          entry.target.classList.remove('reveal-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      observer.observe(el);
+    });
+    window.__observeReveal = function (el) {
+      if (el) observer.observe(el);
+    };
+  })();
+
+  /* ---------- Business Directory ---------- */
+  (function () {
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    // Named supabaseClient to avoid colliding with the global `supabase` object from the CDN script.
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    var allMembers = [];
+    var currentCategory = null; // null === "All"
+
+    var searchInput = document.getElementById("searchInput");
+    var chipsScroll = document.getElementById("chipsScroll");
+    var dirList = document.getElementById("dirList");
+    var resultsCount = document.getElementById("resultsCount");
+
+    function escapeHtml(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function logoFallbackSVG() {
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<rect x="3" y="7" width="18" height="13" rx="2"/>' +
+        '<path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
+        '</svg>';
+    }
+
+    function renderChips() {
+      var categories = [];
+      var seen = {};
+      for (var i = 0; i < allMembers.length; i++) {
+        var cat = allMembers[i].category;
+        if (!cat) continue;
+        var key = String(cat).trim();
+        if (!key) continue;
+        var norm = key.toLowerCase();
+        if (seen[norm]) continue;
+        seen[norm] = true;
+        categories.push(key);
+      }
+
+      chipsScroll.innerHTML = "";
+
+      var allChip = document.createElement("button");
+      allChip.className = "chip" + (currentCategory === null ? " active" : "");
+      allChip.type = "button";
+      allChip.textContent = "All";
+      allChip.addEventListener("click", function () {
+        currentCategory = null;
+        renderChips();
+        renderList();
+      });
+      chipsScroll.appendChild(allChip);
+
+      for (var j = 0; j < categories.length; j++) {
+        (function (cat) {
+          var chip = document.createElement("button");
+          chip.className = "chip" + (currentCategory !== null && currentCategory.toLowerCase() === cat.toLowerCase() ? " active" : "");
+          chip.type = "button";
+          chip.textContent = cat;
+          chip.addEventListener("click", function () {
+            currentCategory = cat;
+            renderChips();
+            renderList();
+          });
+          chipsScroll.appendChild(chip);
+        })(categories[j]);
+      }
+    }
+
+    function buildContactItem(href, icon, text, isLink) {
+      var el = document.createElement(isLink ? "a" : "span");
+      el.className = "biz-contact-item";
+      if (isLink) el.href = href;
+      el.innerHTML = icon + '<span>' + escapeHtml(text) + '</span>';
+      return el;
+    }
+
+    function phoneIcon() {
+      return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+    }
+    function emailIcon() {
+      return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>';
+    }
+    function addressIcon() {
+      return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+    }
+
+    function createCard(m) {
+      var card = document.createElement("article");
+      card.className = "biz-card reveal";
+
+      var header = document.createElement("div");
+      header.className = "biz-header";
+
+      var logo = document.createElement("div");
+      logo.className = "biz-logo";
+      if (m.logo_url) {
+        var img = document.createElement("img");
+        img.src = m.logo_url;
+        img.alt = "";
+        img.loading = "lazy";
+        img.onerror = function () { logo.innerHTML = logoFallbackSVG(); };
+        logo.appendChild(img);
+      } else {
+        logo.innerHTML = logoFallbackSVG();
+      }
+
+      var personName = (m.contact_person_name || "").trim();
+      var businessName = (m.business_name || "").trim();
+      var hasPerson = personName.length > 0;
+
+      var info = document.createElement("div");
+      info.className = "biz-info";
+
+      var title = document.createElement("h3");
+      title.textContent = hasPerson ? personName : businessName;
+      info.appendChild(title);
+
+      // Company name as subheading — only when we have a distinct member name,
+      // otherwise business_name is already the heading (avoid duplication).
+      if (hasPerson && businessName) {
+        var companySubhead = document.createElement("div");
+        companySubhead.className = "biz-company-name";
+        companySubhead.textContent = businessName;
+        info.appendChild(companySubhead);
+      }
+
+      header.appendChild(logo);
+      header.appendChild(info);
+      card.appendChild(header);
+
+      // Company profile section: category badge + description
+      if (m.category || m.description) {
+        var company = document.createElement("div");
+        company.className = "biz-company";
+
+        if (m.category) {
+          var cat = document.createElement("span");
+          cat.className = "category-tag";
+          cat.textContent = m.category;
+          company.appendChild(cat);
+        }
+
+        if (m.description) {
+          var desc = document.createElement("p");
+          desc.className = "biz-desc";
+          desc.textContent = m.description;
+          company.appendChild(desc);
+        }
+
+        card.appendChild(company);
+      }
+
+      var contact = document.createElement("div");
+      contact.className = "biz-contact";
+
+      if (m.phone) {
+        var phoneDigits = String(m.phone).replace(/[^\d+]/g, "");
+        contact.appendChild(buildContactItem("tel:" + phoneDigits, phoneIcon(), m.phone, true));
+      }
+      if (m.email) {
+        contact.appendChild(buildContactItem("mailto:" + m.email, emailIcon(), m.email, true));
+      }
+      if (m.address) {
+        contact.appendChild(buildContactItem("", addressIcon(), m.address, false));
+      }
+
+      if (contact.childNodes.length > 0) {
+        card.appendChild(contact);
+      }
+
+      return card;
+    }
+
+    function renderList() {
+      var query = searchInput.value.trim().toLowerCase();
+      var filtered = allMembers.filter(function (m) {
+        var personName = m.contact_person_name ? String(m.contact_person_name).toLowerCase() : "";
+        var businessName = m.business_name ? String(m.business_name).toLowerCase() : "";
+        var matchesSearch = !query ||
+          personName.indexOf(query) !== -1 ||
+          businessName.indexOf(query) !== -1;
+        var matchesCat = currentCategory === null ||
+          (m.category && String(m.category).toLowerCase() === currentCategory.toLowerCase());
+        return matchesSearch && matchesCat;
+      });
+
+      dirList.innerHTML = "";
+
+      if (allMembers.length === 0) {
+        resultsCount.textContent = "0 members";
+        var empty = document.createElement("div");
+        empty.className = "dir-state";
+        empty.textContent = "No members in the directory yet.";
+        dirList.appendChild(empty);
+        return;
+      }
+
+      resultsCount.textContent = filtered.length + " " + (filtered.length === 1 ? "member" : "members");
+
+      if (filtered.length === 0) {
+        var noMatch = document.createElement("div");
+        noMatch.className = "dir-state";
+        noMatch.textContent = "No members match your search.";
+        dirList.appendChild(noMatch);
+        return;
+      }
+
+      for (var i = 0; i < filtered.length; i++) {
+        var card = createCard(filtered[i]);
+        dirList.appendChild(card);
+        if (window.__observeReveal) window.__observeReveal(card);
+      }
+    }
+
+    async function loadDirectory() {
+      dirList.innerHTML = '<div class="dir-state"><div class="spinner"></div>Loading directory…</div>';
+      resultsCount.textContent = "";
+
+      try {
+        var result = await supabaseClient
+          .from("directory_members")
+          .select("*")
+          .order("business_name", { ascending: true });
+
+        if (result.error) throw result.error;
+
+        allMembers = result.data || [];
+        renderChips();
+        renderList();
+      } catch (err) {
+        console.error(err);
+        dirList.innerHTML = '<div class="dir-state error">Couldn\'t load the directory. ' + escapeHtml(err.message || "") + '</div>';
+      }
+    }
+
+    searchInput.addEventListener("input", renderList);
+
+    loadDirectory();
+  })();
+
+  /* ---------- Site logo (from site_media) ---------- */
+  (function () {
+    if (typeof supabase === "undefined") return;
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var logoImg = document.getElementById("siteLogo");
+    if (!logoImg) return;
+    supabaseClient
+      .from("site_media")
+      .select("image_url")
+      .eq("type", "logo")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .then(function (result) {
+        if (result.error) {
+          console.error("Couldn't load site logo:", result.error.message);
+          return;
+        }
+        var rows = result.data || [];
+        if (rows.length > 0 && rows[0].image_url) {
+          logoImg.onload = function () { logoImg.classList.add("loaded"); };
+          logoImg.onerror = function () { console.warn("Site logo failed to load"); };
+          logoImg.src = rows[0].image_url;
+        }
+      })
+      .catch(function (err) { console.error("Logo fetch error:", err); });
+  })();
+</script>
+
+</body>
+</html>

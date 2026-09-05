@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>News — Chamber of Commerce Bhuj</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --navy: #1e3a8a;
+    --navy-dark: #172554;
+    --navy-light: #3b5bbd;
+    --gold: #d97706;
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Gujarati", "Noto Sans Devanagari", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--navy); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  /* ===== Header ===== */
+  .site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: none;
+  }
+  .logo-mark.loaded {
+    display: block;
+  }
+  .logo-text {
+    line-height: 1.2;
+    font-size: 1.2rem;
+  }
+  .logo-sub {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 480px) {
+    .header-inner { padding: 6px 16px; }
+    .logo-mark {
+      width: 56px;
+      height: 56px;
+    }
+    .logo-text { font-size: 1rem; }
+    .logo-sub { display: none; }
+  }
+
+  /* ===== Nav ===== */
+  .nav-menu ul {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-menu a {
+    display: block;
+    padding: 8px 13px;
+    border-radius: 6px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .nav-menu a:hover { background: var(--bg-soft); color: var(--navy); }
+  .nav-menu a.active,
+  .nav-menu a[aria-current="page"] {
+    background: var(--navy);
+    color: #fff;
+  }
+
+  /* ===== Hamburger ===== */
+  .nav-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .nav-toggle span {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--navy);
+    border-radius: 2px;
+    transition: transform 0.2s ease, top 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle span:nth-child(1) { top: 12px; }
+  .nav-toggle span:nth-child(2) { top: 19px; }
+  .nav-toggle span:nth-child(3) { top: 26px; }
+  .nav-toggle.open span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+
+  @media (max-width: 1080px) {
+    .nav-toggle { display: block; }
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    .nav-menu.open { display: block; }
+    .nav-menu ul { flex-direction: column; gap: 2px; }
+    .nav-menu a { padding: 11px 14px; border-radius: 6px; }
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 55%, #312e81 100%);
+    color: #fff;
+    padding: 64px 20px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 18% 25%, rgba(217, 119, 6, 0.18) 0%, transparent 42%),
+      radial-gradient(circle at 82% 75%, rgba(255, 255, 255, 0.08) 0%, transparent 45%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; max-width: 820px; margin: 0 auto; }
+  .hero-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+  .lang-btn {
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .lang-btn:hover { background: rgba(255, 255, 255, 0.18); color: #fff; }
+  .lang-btn.active { background: #fff; color: var(--navy); border-color: #fff; }
+  .hero h1 {
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+    margin: 0 0 10px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+  .hero .tagline {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* ===== Hero carousel ===== */
+  .hero-carousel {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background: #0f172a;
+  }
+  @media (min-width: 640px) { .hero-carousel { height: 420px; } }
+  @media (min-width: 1024px) { .hero-carousel { height: 480px; } }
+  .carousel-viewport {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .carousel-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-color: #1e293b;
+    cursor: pointer;
+  }
+  .carousel-slide.no-image {
+    background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 55%, #831843 100%);
+  }
+  .carousel-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 35%, rgba(0,0,0,0.78) 100%);
+    pointer-events: none;
+  }
+  .carousel-content {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 32px;
+    color: #fff;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+  @media (min-width: 640px) {
+    .carousel-content { left: 32px; right: 32px; bottom: 40px; }
+  }
+  @media (min-width: 1024px) {
+    .carousel-content { left: 48px; right: 48px; bottom: 56px; }
+  }
+  .carousel-content .category-tag {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.22);
+  }
+  .carousel-title {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.55);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) { .carousel-title { font-size: 1.7rem; } }
+  @media (min-width: 1024px) { .carousel-title { font-size: 2.1rem; } }
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    color: var(--navy);
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    z-index: 5;
+    font-family: inherit;
+  }
+  .carousel-arrow:hover { background: #fff; }
+  .carousel-arrow.prev { left: 14px; }
+  .carousel-arrow.next { right: 14px; }
+  @media (min-width: 640px) {
+    .carousel-arrow { display: flex; width: 44px; height: 44px; font-size: 1.6rem; }
+    .carousel-arrow.prev { left: 18px; }
+    .carousel-arrow.next { right: 18px; }
+  }
+  .carousel-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+    z-index: 5;
+  }
+  @media (min-width: 640px) { .carousel-dots { bottom: 16px; gap: 9px; } }
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .carousel-dot.active {
+    background: #fff;
+    width: 22px;
+    border-radius: 999px;
+  }
+
+  /* ===== Chips ===== */
+  .chips-wrap {
+    position: sticky;
+    top: 65px;
+    z-index: 10;
+    background: var(--bg);
+    padding: 14px 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chips-scroll {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chips-scroll::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto;
+    padding: 8px 16px;
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .chip:hover { border-color: var(--navy); color: var(--navy); }
+  .chip.active {
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+  }
+
+  /* ===== News list ===== */
+  .news-list-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 20px 60px;
+  }
+  .news-list {
+    display: grid;
+    gap: 16px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 16px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.1);
+  }
+  .card-image {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: #eef2f7;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-image.fallback {
+    background: linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 100%);
+    color: var(--navy);
+  }
+  .fallback-icon { width: 56px; height: 56px; opacity: 0.6; }
+  .card-body {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .category-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #dbeafe;
+    color: var(--navy);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .card-date { font-size: 0.8rem; color: var(--muted); }
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+    line-height: 1.35;
+  }
+  .card-excerpt {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.55;
+  }
+  .read-more {
+    align-self: flex-start;
+    margin-top: 4px;
+    background: transparent;
+    color: var(--navy);
+    border: none;
+    padding: 6px 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .read-more:hover { text-decoration: underline; }
+  @media (min-width: 640px) {
+    .card { grid-template-columns: 240px 1fr; }
+    .card-image { aspect-ratio: auto; height: 100%; min-height: 160px; }
+    .card-title { font-size: 1.25rem; }
+    .news-list { gap: 18px; }
+  }
+
+  .state {
+    text-align: center;
+    padding: 60px 16px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== Modal ===== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-wrap { position: relative; max-width: 720px; width: 100%; margin: 40px 0; }
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal-image {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    display: block;
+  }
+  .modal-content { padding: 22px 24px 28px; }
+  .modal-content h2 { margin: 0 0 6px; font-size: 1.45rem; line-height: 1.3; }
+  .modal-content .card-meta { margin-bottom: 14px; }
+  .modal-content .body-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #374151;
+    white-space: pre-wrap;
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  /* ===== Footer ===== */
+  .site-footer {
+    background: var(--navy-dark);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 32px 20px;
+    text-align: center;
+    font-size: 0.88rem;
+  }
+  .site-footer p { margin: 0; }
+  .site-footer .footer-brand { font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .site-footer .contact { opacity: 0.7; margin-top: 10px; font-size: 0.82rem; }
+
+  /* ===== Scroll reveal animations ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+        <img id="siteLogo" class="logo-mark" alt="Chamber of Commerce Bhuj" />
+      <span class="logo-text">Chamber of Commerce Bhuj<span class="logo-sub">Kutch · Gujarat</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="news.html" class="active" aria-current="page">News</a></li>
+        <li><a href="directory.html">Directory</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="certificates.html">Certificates</a></li>
+        <li><a href="committee.html">Committee</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 data-i18n="siteTitle">News &amp; Updates</h1>
+      <p class="tagline" data-i18n="siteSubtitle">Trade news, policy updates and announcements from the Chamber.</p>
+      <div class="hero-actions">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="hi">हिं</button>
+        <button type="button" class="lang-btn" data-lang="gu">ગુજ</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero-carousel" id="heroCarousel" aria-label="Featured news"></section>
+
+  <div class="chips-wrap">
+    <div class="chips-scroll" id="chipsScroll"></div>
+  </div>
+
+  <div class="news-list-wrap">
+    <div class="news-list" id="newsList">
+      <div class="state" id="stateBox">
+        <div class="spinner"></div>
+        <div data-i18n="loading">Loading news…</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-wrap">
+    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    <div class="modal">
+      <img class="modal-image" id="modalImage" alt="" style="display:none" />
+      <div class="modal-content">
+        <div class="card-meta">
+          <span class="category-tag" id="modalCategory"></span>
+          <span class="card-date" id="modalDate"></span>
+        </div>
+        <h2 id="modalTitle"></h2>
+        <p class="body-text" id="modalBody"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-brand">Chamber of Commerce Bhuj</p>
+    <p>© Chamber of Commerce Bhuj. All rights reserved.</p>
+    <p class="contact">contact@cocbhuj.org · +91 2832 XXX XXX</p>
+  </div>
+</footer>
+
+<script>
+  /* ---------- Nav toggle ---------- */
+  (function () {
+    var toggle = document.getElementById("navToggle");
+    var menu = document.getElementById("navMenu");
+    toggle.addEventListener("click", function () {
+      var open = menu.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        menu.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+
+  /* ---------- Scroll reveal animations ---------- */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+        } else {
+          entry.target.classList.remove('reveal-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      observer.observe(el);
+    });
+    window.__observeReveal = function (el) {
+      if (el) observer.observe(el);
+    };
+  })();
+
+  /* ---------- News (Supabase-backed) ---------- */
+  (function () {
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    // Named supabaseClient to avoid colliding with the global `supabase` object from the CDN script.
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    /* ----- Translations ----- */
+    var I18N = {
+      en: {
+        siteTitle: "News & Updates",
+        siteSubtitle: "Trade news, policy updates and announcements from the Chamber.",
+        allCategory: "All",
+        readMore: "Read more",
+        loading: "Loading news…",
+        empty: "No news in this category yet.",
+        locale: "en-US"
+      },
+      hi: {
+        siteTitle: "समाचार और अपडेट",
+        siteSubtitle: "चैम्बर की ओर से व्यापार समाचार, नीति अपडेट और घोषणाएँ।",
+        allCategory: "सभी",
+        readMore: "और पढ़ें",
+        loading: "समाचार लोड हो रहा है…",
+        empty: "इस श्रेणी में अभी कोई समाचार नहीं है।",
+        locale: "hi-IN"
+      },
+      gu: {
+        siteTitle: "સમાચાર અને અપડેટ્સ",
+        siteSubtitle: "ચેમ્બર તરફથી વ્યાપાર સમાચાર, નીતિ અપડેટ્સ અને ઘોષણાઓ.",
+        allCategory: "બધા",
+        readMore: "વધુ વાંચો",
+        loading: "સમાચાર લોડ થઈ રહ્યા છે…",
+        empty: "આ કેટેગરીમાં હજુ સુધી કોઈ સમાચાર નથી.",
+        locale: "gu-IN"
+      }
+    };
+
+    var currentLang = "en";
+    var allPosts = [];
+    var currentCategory = null;
+
+    var newsList = document.getElementById("newsList");
+    var stateBox = document.getElementById("stateBox");
+    var chipsScroll = document.getElementById("chipsScroll");
+    var modal = document.getElementById("modal");
+    var modalImage = document.getElementById("modalImage");
+    var modalCategory = document.getElementById("modalCategory");
+    var modalDate = document.getElementById("modalDate");
+    var modalTitle = document.getElementById("modalTitle");
+    var modalBody = document.getElementById("modalBody");
+    var modalClose = document.getElementById("modalClose");
+
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "";
+      try {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        return new Intl.DateTimeFormat(t("locale"), {
+          year: "numeric", month: "short", day: "numeric"
+        }).format(d);
+      } catch (e) { return ""; }
+    }
+
+    function truncate(text, len) {
+      if (!text) return "";
+      var s = String(text).trim();
+      if (s.length <= len) return s;
+      return s.slice(0, len).trimEnd() + "…";
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n");
+        el.textContent = t(key);
+      });
+      document.documentElement.lang = currentLang === "hi" ? "hi" : (currentLang === "gu" ? "gu" : "en");
+    }
+
+    /* ----- Language toggle ----- */
+    document.querySelectorAll(".lang-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        currentLang = btn.getAttribute("data-lang");
+        document.querySelectorAll(".lang-btn").forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        applyTranslations();
+        renderChips();
+        renderNews();
+      });
+    });
+
+    /* ----- Hero carousel ----- */
+    var carouselPosts = [];
+    var carouselIndex = 0;
+    var carouselTimer = null;
+
+    function buildCarousel() {
+      var container = document.getElementById("heroCarousel");
+      carouselPosts = allPosts.filter(function (p) { return !!p.image_url; }).slice(0, 5);
+      carouselIndex = 0;
+      if (carouselPosts.length < 2) {
+        container.style.display = "none";
+        return;
+      }
+      container.style.display = "";
+      container.innerHTML = "";
+
+      var viewport = document.createElement("div");
+      viewport.className = "carousel-viewport";
+      var track = document.createElement("div");
+      track.className = "carousel-track";
+      track.id = "carouselTrack";
+
+      carouselPosts.forEach(function (post, i) {
+        var slide = document.createElement("div");
+        slide.className = "carousel-slide";
+        slide.dataset.index = i;
+        slide.style.backgroundImage = 'url("' + post.image_url.replace(/"/g, '&quot;') + '")';
+
+        var overlay = document.createElement("div");
+        overlay.className = "carousel-overlay";
+        var content = document.createElement("div");
+        content.className = "carousel-content";
+
+        if (post.category) {
+          var cat = document.createElement("span");
+          cat.className = "category-tag";
+          cat.textContent = post.category;
+          content.appendChild(cat);
+        }
+        var title = document.createElement("h3");
+        title.className = "carousel-title";
+        title.textContent = post.title || "";
+        content.appendChild(title);
+
+        slide.appendChild(overlay);
+        slide.appendChild(content);
+        slide.addEventListener("click", function () { openModal(post); });
+        track.appendChild(slide);
+      });
+
+      viewport.appendChild(track);
+      container.appendChild(viewport);
+
+      var prevBtn = document.createElement("button");
+      prevBtn.className = "carousel-arrow prev";
+      prevBtn.type = "button";
+      prevBtn.setAttribute("aria-label", "Previous");
+      prevBtn.innerHTML = "‹";
+      prevBtn.addEventListener("click", function (e) { e.stopPropagation(); prevSlide(); });
+
+      var nextBtn = document.createElement("button");
+      nextBtn.className = "carousel-arrow next";
+      nextBtn.type = "button";
+      nextBtn.setAttribute("aria-label", "Next");
+      nextBtn.innerHTML = "›";
+      nextBtn.addEventListener("click", function (e) { e.stopPropagation(); nextSlide(); });
+
+      container.appendChild(prevBtn);
+      container.appendChild(nextBtn);
+
+      var dots = document.createElement("div");
+      dots.className = "carousel-dots";
+      carouselPosts.forEach(function (_, i) {
+        var dot = document.createElement("button");
+        dot.className = "carousel-dot" + (i === carouselIndex ? " active" : "");
+        dot.type = "button";
+        dot.addEventListener("click", function (e) { e.stopPropagation(); goToSlide(i); });
+        dots.appendChild(dot);
+      });
+      container.appendChild(dots);
+
+      setupTouchHandlers(viewport);
+      updateCarouselPosition();
+      startAutoplay();
+    }
+
+    function updateCarouselPosition() {
+      var track = document.getElementById("carouselTrack");
+      if (track) track.style.transform = "translateX(-" + (carouselIndex * 100) + "%)";
+      document.querySelectorAll("#heroCarousel .carousel-dot").forEach(function (d, i) {
+        d.classList.toggle("active", i === carouselIndex);
+      });
+    }
+
+    function goToSlide(i) {
+      if (carouselPosts.length === 0) return;
+      carouselIndex = (i + carouselPosts.length) % carouselPosts.length;
+      updateCarouselPosition();
+      restartAutoplay();
+    }
+    function nextSlide() { goToSlide(carouselIndex + 1); }
+    function prevSlide() { goToSlide(carouselIndex - 1); }
+
+    function startAutoplay() {
+      stopAutoplay();
+      if (carouselPosts.length < 2) return;
+      carouselTimer = setInterval(function () {
+        carouselIndex = (carouselIndex + 1) % carouselPosts.length;
+        updateCarouselPosition();
+      }, 4500);
+    }
+    function stopAutoplay() {
+      if (carouselTimer) { clearInterval(carouselTimer); carouselTimer = null; }
+    }
+    function restartAutoplay() { startAutoplay(); }
+
+    function setupTouchHandlers(viewport) {
+      var startX = 0, startY = 0, horizontalIntent = false;
+      viewport.addEventListener("touchstart", function (e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        horizontalIntent = false;
+      }, { passive: true });
+      viewport.addEventListener("touchmove", function (e) {
+        var dx = e.touches[0].clientX - startX;
+        var dy = e.touches[0].clientY - startY;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) horizontalIntent = true;
+      }, { passive: true });
+      viewport.addEventListener("touchend", function (e) {
+        var dx = e.changedTouches[0].clientX - startX;
+        if (horizontalIntent && Math.abs(dx) > 40) {
+          if (dx < 0) nextSlide(); else prevSlide();
+        }
+      });
+    }
+
+    /* ----- Category chips ----- */
+    function renderChips() {
+      var seen = {};
+      var categories = [];
+      allPosts.forEach(function (p) {
+        if (!p.category) return;
+        var key = String(p.category).trim();
+        if (!key || seen[key.toLowerCase()]) return;
+        seen[key.toLowerCase()] = true;
+        categories.push(key);
+      });
+
+      chipsScroll.innerHTML = "";
+      var allChip = document.createElement("button");
+      allChip.className = "chip" + (currentCategory === null ? " active" : "");
+      allChip.type = "button";
+      allChip.textContent = t("allCategory");
+      allChip.addEventListener("click", function () {
+        currentCategory = null;
+        renderChips();
+        renderNews();
+      });
+      chipsScroll.appendChild(allChip);
+
+      categories.forEach(function (cat) {
+        var chip = document.createElement("button");
+        chip.className = "chip" + (currentCategory !== null && currentCategory.toLowerCase() === cat.toLowerCase() ? " active" : "");
+        chip.type = "button";
+        chip.textContent = cat;
+        chip.addEventListener("click", function () {
+          currentCategory = cat;
+          renderChips();
+          renderNews();
+        });
+        chipsScroll.appendChild(chip);
+      });
+    }
+
+    /* ----- News cards ----- */
+    function fallbackSVG() {
+      return '<svg class="fallback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><line x1="3.5" y1="9" x2="20.5" y2="9"/><line x1="7.5" y1="13" x2="13" y2="13"/><line x1="7.5" y1="16" x2="16.5" y2="16"/></svg>';
+    }
+
+    function createCard(post) {
+      var article = document.createElement("article");
+      article.className = "card reveal";
+
+      var imgWrap = document.createElement("div");
+      imgWrap.className = "card-image";
+      if (post.image_url) {
+        var img = document.createElement("img");
+        img.loading = "lazy";
+        img.alt = post.title || "";
+        img.src = post.image_url;
+        img.onerror = function () {
+          imgWrap.classList.add("fallback");
+          imgWrap.innerHTML = fallbackSVG();
+        };
+        imgWrap.appendChild(img);
+      } else {
+        imgWrap.classList.add("fallback");
+        imgWrap.innerHTML = fallbackSVG();
+      }
+
+      var body = document.createElement("div");
+      body.className = "card-body";
+
+      var meta = document.createElement("div");
+      meta.className = "card-meta";
+      if (post.category) {
+        var cat = document.createElement("span");
+        cat.className = "category-tag";
+        cat.textContent = post.category;
+        meta.appendChild(cat);
+      }
+      var date = document.createElement("span");
+      date.className = "card-date";
+      date.textContent = formatDate(post.published_at || post.created_at);
+      meta.appendChild(date);
+
+      var title = document.createElement("h2");
+      title.className = "card-title";
+      title.textContent = post.title || "";
+
+      var excerpt = document.createElement("p");
+      excerpt.className = "card-excerpt";
+      excerpt.textContent = truncate(post.body, 160);
+
+      var readMore = document.createElement("button");
+      readMore.className = "read-more";
+      readMore.type = "button";
+      readMore.textContent = t("readMore");
+      readMore.addEventListener("click", function (e) {
+        e.stopPropagation();
+        openModal(post);
+      });
+
+      body.appendChild(meta);
+      body.appendChild(title);
+      body.appendChild(excerpt);
+      body.appendChild(readMore);
+
+      article.appendChild(imgWrap);
+      article.appendChild(body);
+      article.addEventListener("click", function () { openModal(post); });
+      if (window.__observeReveal) window.__observeReveal(article);
+      return article;
+    }
+
+    function renderNews() {
+      newsList.innerHTML = "";
+      var filtered = currentCategory === null
+        ? allPosts
+        : allPosts.filter(function (p) {
+            return p.category && p.category.toLowerCase() === currentCategory.toLowerCase();
+          });
+
+      if (allPosts.length === 0) return;
+
+      if (filtered.length === 0) {
+        var empty = document.createElement("div");
+        empty.className = "state";
+        empty.textContent = t("empty");
+        newsList.appendChild(empty);
+        return;
+      }
+      filtered.forEach(function (p) { newsList.appendChild(createCard(p)); });
+    }
+
+    /* ----- Modal ----- */
+    function openModal(post) {
+      if (post.image_url) {
+        modalImage.src = post.image_url;
+        modalImage.alt = post.title || "";
+        modalImage.style.display = "block";
+      } else {
+        modalImage.style.display = "none";
+      }
+      modalCategory.textContent = post.category || "";
+      modalDate.textContent = formatDate(post.published_at || post.created_at);
+      modalTitle.textContent = post.title || "";
+      modalBody.textContent = post.body || "";
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function closeModal() {
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    modalClose.addEventListener("click", closeModal);
+    modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+    });
+
+    /* ----- Load ----- */
+    async function loadNews() {
+      try {
+        var result = await supabaseClient
+          .from("news_posts")
+          .select("*")
+          .order("published_at", { ascending: false, nullsFirst: false });
+        if (result.error) throw result.error;
+
+        allPosts = (result.data || []).slice().sort(function (a, b) {
+          var ta = a.published_at ? new Date(a.published_at).getTime() : 0;
+          var tb = b.published_at ? new Date(b.published_at).getTime() : 0;
+          return tb - ta;
+        });
+
+        renderChips();
+        renderNews();
+        buildCarousel();
+      } catch (err) {
+        console.error(err);
+        newsList.innerHTML = '<div class="state">Couldn\'t load news. ' + (err.message || "") + '</div>';
+      }
+    }
+
+    applyTranslations();
+    loadNews();
+  })();
+
+  /* ---------- Site logo (from site_media) ---------- */
+  (function () {
+    if (typeof supabase === "undefined") return;
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var logoImg = document.getElementById("siteLogo");
+    if (!logoImg) return;
+    supabaseClient
+      .from("site_media")
+      .select("image_url")
+      .eq("type", "logo")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .then(function (result) {
+        if (result.error) {
+          console.error("Couldn't load site logo:", result.error.message);
+          return;
+        }
+        var rows = result.data || [];
+        if (rows.length > 0 && rows[0].image_url) {
+          logoImg.onload = function () { logoImg.classList.add("loaded"); };
+          logoImg.onerror = function () { console.warn("Site logo failed to load"); };
+          logoImg.src = rows[0].image_url;
+        }
+      })
+      .catch(function (err) { console.error("Logo fetch error:", err); });
+  })();
+</script>
+
+</body>
+</html>

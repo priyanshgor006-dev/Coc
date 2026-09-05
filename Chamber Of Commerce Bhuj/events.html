@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Events — Chamber of Commerce Bhuj</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --navy: #1e3a8a; --navy-dark: #172554; --navy-light: #3b5bbd; --gold: #d97706;
+    --bg: #ffffff; --bg-soft: #f8fafc; --text: #1f2937; --muted: #6b7280; --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--navy); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  .site-header { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1200px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: relative; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy); font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+  .logo-mark { width: 84px; height: 84px; object-fit: contain; flex-shrink: 0; display: none; }
+  .logo-mark.loaded { display: block; }
+  .logo-text { line-height: 1.2; font-size: 1.2rem; }
+  .logo-sub { display: block; font-size: 0.68rem; font-weight: 500; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  @media (max-width: 480px) {
+    .header-inner { padding: 6px 16px; }
+    .logo-mark { width: 56px; height: 56px; }
+    .logo-text { font-size: 1rem; }
+    .logo-sub { display: none; }
+  }
+
+  .nav-menu ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+  .nav-menu a { display: block; padding: 8px 13px; border-radius: 6px; color: var(--text); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: background 0.12s ease, color 0.12s ease; }
+  .nav-menu a:hover { background: var(--bg-soft); color: var(--navy); }
+  .nav-menu a.active, .nav-menu a[aria-current="page"] { background: var(--navy); color: #fff; }
+
+  .nav-toggle { display: none; background: transparent; border: 1px solid var(--border); border-radius: 6px; width: 40px; height: 40px; cursor: pointer; padding: 0; position: relative; flex-shrink: 0; }
+  .nav-toggle span { position: absolute; left: 10px; right: 10px; height: 2px; background: var(--navy); border-radius: 2px; transition: transform 0.2s ease, top 0.2s ease, opacity 0.2s ease; }
+  .nav-toggle span:nth-child(1) { top: 12px; } .nav-toggle span:nth-child(2) { top: 19px; } .nav-toggle span:nth-child(3) { top: 26px; }
+  .nav-toggle.open span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+
+  @media (max-width: 960px) {
+    .nav-toggle { display: block; }
+    .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); padding: 8px 16px 16px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); }
+    .nav-menu.open { display: block; }
+    .nav-menu ul { flex-direction: column; gap: 2px; }
+    .nav-menu a { padding: 11px 14px; border-radius: 6px; }
+  }
+
+  .page-header { background: var(--bg-soft); border-bottom: 1px solid var(--border); padding: 48px 20px; text-align: center; }
+  .page-header h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 0 0 8px; color: var(--navy); font-weight: 700; letter-spacing: -0.01em; }
+  .page-header p { color: var(--muted); margin: 0; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+  .placeholder { padding: 80px 20px; min-height: 40vh; display: flex; align-items: center; justify-content: center; }
+  .placeholder-inner { max-width: 520px; text-align: center; }
+  .placeholder-icon { width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: var(--bg-soft); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--navy); }
+  .placeholder h2 { font-size: 1.4rem; margin: 0 0 10px; color: var(--text); font-weight: 700; }
+  .placeholder p { font-size: 0.98rem; color: var(--muted); margin: 0 0 24px; line-height: 1.6; }
+  .back-link { display: inline-block; padding: 10px 20px; background: var(--navy); color: #fff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.92rem; transition: background 0.15s ease; }
+  .back-link:hover { background: var(--navy-dark); }
+
+  .site-footer { background: var(--navy-dark); color: rgba(255, 255, 255, 0.85); padding: 32px 20px; text-align: center; font-size: 0.88rem; }
+  .site-footer p { margin: 0; }
+  .site-footer .footer-brand { font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .site-footer .contact { opacity: 0.7; margin-top: 10px; font-size: 0.82rem; }
+
+  /* ===== Events ===== */
+  .events-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 20px 60px;
+  }
+  .events-section + .events-section {
+    margin-top: 40px;
+  }
+  .events-section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 24px 0 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .events-section-heading h2 {
+    font-size: 1.15rem;
+    margin: 0;
+    color: var(--navy);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .events-section-heading .count {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .event-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    border-color: var(--navy-light);
+  }
+
+  .event-image {
+    aspect-ratio: 16 / 9;
+    background: var(--bg-soft);
+    overflow: hidden;
+    position: relative;
+  }
+  .event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .event-image.fallback {
+    background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
+    color: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .event-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .event-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: 0.01em;
+  }
+  .event-date svg { flex-shrink: 0; }
+  .event-date.tba {
+    color: var(--muted);
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  .event-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .event-location {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .event-location svg { flex-shrink: 0; margin-top: 2px; }
+
+  .event-description {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin: 2px 0 0;
+    line-height: 1.55;
+    opacity: 0.85;
+  }
+
+  @media (min-width: 720px) {
+    .event-card { grid-template-columns: 240px 1fr; }
+    .event-image { aspect-ratio: auto; height: 100%; min-height: 180px; }
+    .event-body { padding: 20px 22px; gap: 10px; }
+    .event-title { font-size: 1.2rem; }
+  }
+
+  .events-state {
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.92rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .events-state.error { color: #b91c1c; }
+  .events-state .spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: evt-spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes evt-spin { to { transform: rotate(360deg); } }
+
+  /* ===== Scroll reveal animations ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+        <img id="siteLogo" class="logo-mark" alt="Chamber of Commerce Bhuj" />
+      <span class="logo-text">Chamber of Commerce Bhuj<span class="logo-sub">Kutch · Gujarat</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navMenu"><span></span><span></span><span></span></button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="directory.html">Directory</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="events.html" class="active" aria-current="page">Events</a></li>
+        <li><a href="certificates.html">Certificates</a></li>
+        <li><a href="committee.html">Committee</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-header reveal">
+    <h1 class="reveal">Events &amp; Programs</h1>
+    <p class="reveal">Trade fairs, business meets, seminars, and Chamber-led initiatives across the year.</p>
+  </section>
+  <div class="events-wrap">
+    <section class="events-section" id="upcomingSection">
+      <div class="events-section-heading">
+        <h2>Upcoming Events</h2>
+        <span class="count" id="upcomingCount"></span>
+      </div>
+      <div class="events-list" id="upcomingList"></div>
+    </section>
+
+    <section class="events-section" id="pastSection" hidden>
+      <div class="events-section-heading">
+        <h2>Past Events</h2>
+        <span class="count" id="pastCount"></span>
+      </div>
+      <div class="events-list" id="pastList"></div>
+    </section>
+
+    <section class="events-section" id="tbaSection" hidden>
+      <div class="events-section-heading">
+        <h2>Date TBA</h2>
+        <span class="count" id="tbaCount"></span>
+      </div>
+      <div class="events-list" id="tbaList"></div>
+    </section>
+
+    <div id="eventsEmpty" hidden>
+      <div class="events-state">No events in the calendar yet.</div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-brand">Chamber of Commerce Bhuj</p>
+    <p>© Chamber of Commerce Bhuj. All rights reserved.</p>
+    <p class="contact">contact@cocbhuj.org · +91 2832 XXX XXX</p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var toggle = document.getElementById("navToggle");
+    var menu = document.getElementById("navMenu");
+    toggle.addEventListener("click", function () {
+      var open = menu.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        menu.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+
+  /* ---------- Events Listing ---------- */
+  (function () {
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    // Named supabaseClient to avoid colliding with the global `supabase` object from the CDN script.
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    var upcomingSection = document.getElementById("upcomingSection");
+    var upcomingList = document.getElementById("upcomingList");
+    var upcomingCount = document.getElementById("upcomingCount");
+    var pastSection = document.getElementById("pastSection");
+    var pastList = document.getElementById("pastList");
+    var pastCount = document.getElementById("pastCount");
+    var tbaSection = document.getElementById("tbaSection");
+    var tbaList = document.getElementById("tbaList");
+    var tbaCount = document.getElementById("tbaCount");
+    var eventsEmpty = document.getElementById("eventsEmpty");
+
+    function escapeHtml(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "";
+      try {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        return new Intl.DateTimeFormat("en-US", {
+          year: "numeric", month: "short", day: "numeric"
+        }).format(d);
+      } catch (e) { return ""; }
+    }
+
+    function calendarIcon() {
+      return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+    }
+    function pinIcon() {
+      return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+    }
+    function fallbackSVG() {
+      return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+    }
+
+    function createCard(ev) {
+      var card = document.createElement("article");
+      card.className = "event-card reveal";
+
+      // Image
+      var imgWrap = document.createElement("div");
+      imgWrap.className = "event-image";
+      if (ev.image_url) {
+        var img = document.createElement("img");
+        img.src = ev.image_url;
+        img.alt = ev.title || "";
+        img.loading = "lazy";
+        img.onerror = function () {
+          imgWrap.classList.add("fallback");
+          imgWrap.innerHTML = fallbackSVG();
+        };
+        imgWrap.appendChild(img);
+      } else {
+        imgWrap.classList.add("fallback");
+        imgWrap.innerHTML = fallbackSVG();
+      }
+
+      // Body
+      var body = document.createElement("div");
+      body.className = "event-body";
+
+      // Date (or TBA)
+      var dateEl = document.createElement("div");
+      dateEl.className = "event-date";
+      var formatted = formatDate(ev.event_date);
+      if (formatted) {
+        dateEl.innerHTML = calendarIcon() + '<span>' + escapeHtml(formatted) + '</span>';
+      } else {
+        dateEl.classList.add("tba");
+        dateEl.textContent = "Date to be announced";
+      }
+
+      // Title
+      var title = document.createElement("h3");
+      title.className = "event-title";
+      title.textContent = ev.title || "";
+
+      body.appendChild(dateEl);
+      body.appendChild(title);
+
+      // Location
+      if (ev.location) {
+        var loc = document.createElement("div");
+        loc.className = "event-location";
+        loc.innerHTML = pinIcon() + '<span>' + escapeHtml(ev.location) + '</span>';
+        body.appendChild(loc);
+      }
+
+      // Description
+      if (ev.description) {
+        var desc = document.createElement("p");
+        desc.className = "event-description";
+        desc.textContent = ev.description;
+        body.appendChild(desc);
+      }
+
+      card.appendChild(imgWrap);
+      card.appendChild(body);
+      return card;
+    }
+
+    function renderList(listEl, events) {
+      listEl.innerHTML = "";
+      if (events.length === 0) {
+        var empty = document.createElement("div");
+        empty.className = "events-state";
+        empty.textContent = listEl === upcomingList
+          ? "No upcoming events at this time."
+          : "No events to show.";
+        listEl.appendChild(empty);
+        return;
+      }
+      for (var i = 0; i < events.length; i++) {
+        var card = createCard(events[i]);
+        listEl.appendChild(card);
+        if (window.__observeReveal) window.__observeReveal(card);
+      }
+    }
+
+    function render(events) {
+      var now = new Date();
+      var upcoming = [];
+      var past = [];
+      var tba = [];
+
+      for (var i = 0; i < events.length; i++) {
+        var ev = events[i];
+        if (!ev.event_date) {
+          tba.push(ev);
+          continue;
+        }
+        var d = new Date(ev.event_date);
+        if (isNaN(d.getTime())) {
+          tba.push(ev);
+          continue;
+        }
+        if (d >= now) upcoming.push(ev);
+        else past.push(ev);
+      }
+
+      // Sort: upcoming soonest-first, past most-recent-first
+      upcoming.sort(function (a, b) { return new Date(a.event_date) - new Date(b.event_date); });
+      past.sort(function (a, b) { return new Date(b.event_date) - new Date(a.event_date); });
+
+      // Upcoming: always shown
+      upcomingCount.textContent = upcoming.length + (upcoming.length === 1 ? " event" : " events");
+      renderList(upcomingList, upcoming);
+
+      // Past: shown only if non-empty
+      if (past.length > 0) {
+        pastSection.hidden = false;
+        pastCount.textContent = past.length + (past.length === 1 ? " event" : " events");
+        renderList(pastList, past);
+      } else {
+        pastSection.hidden = true;
+      }
+
+      // TBA: shown only if non-empty
+      if (tba.length > 0) {
+        tbaSection.hidden = false;
+        tbaCount.textContent = tba.length + (tba.length === 1 ? " event" : " events");
+        renderList(tbaList, tba);
+      } else {
+        tbaSection.hidden = true;
+      }
+
+      // Empty state when no events at all
+      eventsEmpty.hidden = (upcoming.length + past.length + tba.length) > 0;
+    }
+
+    async function loadEvents() {
+      upcomingList.innerHTML = '<div class="events-state"><div class="spinner"></div>Loading events…</div>';
+
+      try {
+        var result = await supabaseClient
+          .from("events")
+          .select("*");
+
+        if (result.error) throw result.error;
+
+        render(result.data || []);
+      } catch (err) {
+        console.error(err);
+        upcomingList.innerHTML = '<div class="events-state error">Couldn\'t load events. ' + escapeHtml(err.message || "") + '</div>';
+      }
+    }
+
+    loadEvents();
+  })();
+
+  /* ---------- Site logo (from site_media) ---------- */
+  (function () {
+    if (typeof supabase === "undefined") return;
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var logoImg = document.getElementById("siteLogo");
+    if (!logoImg) return;
+    supabaseClient
+      .from("site_media")
+      .select("image_url")
+      .eq("type", "logo")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .then(function (result) {
+        if (result.error) {
+          console.error("Couldn't load site logo:", result.error.message);
+          return;
+        }
+        var rows = result.data || [];
+        if (rows.length > 0 && rows[0].image_url) {
+          logoImg.onload = function () { logoImg.classList.add("loaded"); };
+          logoImg.onerror = function () { console.warn("Site logo failed to load"); };
+          logoImg.src = rows[0].image_url;
+        }
+      })
+      .catch(function (err) { console.error("Logo fetch error:", err); });
+  })();
+
+  /* ---------- Scroll reveal animations ---------- */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+        } else {
+          entry.target.classList.remove('reveal-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      observer.observe(el);
+    });
+    window.__observeReveal = function (el) {
+      if (el) observer.observe(el);
+    };
+  })();
+</script>
+
+</body>
+</html>

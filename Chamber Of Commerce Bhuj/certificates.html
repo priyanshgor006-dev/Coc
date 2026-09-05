@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Certificates — Chamber of Commerce Bhuj</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --navy: #1e3a8a;
+    --navy-dark: #172554;
+    --navy-light: #3b5bbd;
+    --gold: #d97706;
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --border-strong: #d1d5db;
+    --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--navy); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  /* ===== Header ===== */
+  .site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: none;
+  }
+  .logo-mark.loaded {
+    display: block;
+  }
+  .logo-text {
+    line-height: 1.2;
+    font-size: 1.2rem;
+  }
+  .logo-sub {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 480px) {
+    .header-inner { padding: 6px 16px; }
+    .logo-mark {
+      width: 56px;
+      height: 56px;
+    }
+    .logo-text { font-size: 1rem; }
+    .logo-sub { display: none; }
+  }
+
+  /* ===== Nav ===== */
+  .nav-menu ul {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-menu a {
+    display: block;
+    padding: 8px 13px;
+    border-radius: 6px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .nav-menu a:hover { background: var(--bg-soft); color: var(--navy); }
+  .nav-menu a.active,
+  .nav-menu a[aria-current="page"] {
+    background: var(--navy);
+    color: #fff;
+  }
+
+  /* ===== Hamburger ===== */
+  .nav-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .nav-toggle span {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--navy);
+    border-radius: 2px;
+    transition: transform 0.2s ease, top 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle span:nth-child(1) { top: 12px; }
+  .nav-toggle span:nth-child(2) { top: 19px; }
+  .nav-toggle span:nth-child(3) { top: 26px; }
+  .nav-toggle.open span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+
+  @media (max-width: 1080px) {
+    .nav-toggle { display: block; }
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    .nav-menu.open { display: block; }
+    .nav-menu ul { flex-direction: column; gap: 2px; }
+    .nav-menu a { padding: 11px 14px; border-radius: 6px; }
+  }
+
+  /* ===== Page header ===== */
+  .page-header {
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 20px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin: 0 0 8px;
+    color: var(--navy);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .page-header p {
+    color: var(--muted);
+    margin: 0;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===== Footer ===== */
+  .site-footer {
+    background: var(--navy-dark);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 32px 20px;
+    text-align: center;
+    font-size: 0.88rem;
+  }
+  .site-footer p { margin: 0; }
+  .site-footer .footer-brand { font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .site-footer .contact { opacity: 0.7; margin-top: 10px; font-size: 0.82rem; }
+
+  /* ===== Certificates ===== */
+  .certificates-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .cert-form,
+  .cert-confirmation {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+  }
+  .cert-form h2 {
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+    color: var(--navy);
+    font-weight: 700;
+  }
+  .cert-form .cert-intro {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0 0 22px;
+    line-height: 1.55;
+  }
+  .cert-form.hidden,
+  .cert-confirmation.hidden {
+    display: none;
+  }
+
+  .cert-error {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: var(--error);
+    border: 1px solid #fecaca;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .cert-error.visible { display: block; }
+
+  .form-row {
+    margin-bottom: 14px;
+  }
+  .form-row label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .form-row .req { color: var(--error); margin-left: 2px; }
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    outline: none;
+    color: var(--text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+  }
+  .form-row textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  .form-row select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+  }
+
+  .submit-btn {
+    padding: 11px 22px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { background: var(--navy-dark); }
+  @media (min-width: 640px) {
+    .submit-btn { width: auto; }
+  }
+
+  .cert-confirmation {
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 40px 28px;
+  }
+  .cert-confirmation-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #ecfdf5;
+    color: #047857;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+  }
+  .cert-confirmation h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 10px;
+  }
+  .cert-confirmation p {
+    color: var(--muted);
+    margin: 0 0 24px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .cert-secondary-btn {
+    padding: 10px 22px;
+    background: transparent;
+    color: var(--navy);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .cert-secondary-btn:hover {
+    background: var(--bg-soft);
+    border-color: var(--navy);
+  }
+
+  .cert-note {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  /* ===== Scroll reveal animations ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+        <img id="siteLogo" class="logo-mark" alt="Chamber of Commerce Bhuj" />
+      <span class="logo-text">Chamber of Commerce Bhuj<span class="logo-sub">Kutch · Gujarat</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="directory.html">Directory</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="certificates.html" class="active" aria-current="page">Certificates</a></li>
+        <li><a href="committee.html">Committee</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-header reveal">
+    <h1 class="reveal">Certificates</h1>
+    <p class="reveal">Request official Chamber certificates and letters.</p>
+  </section>
+
+  <div class="certificates-wrap">
+
+    <form id="certForm" class="cert-form reveal" novalidate>
+      <h2>Request a certificate</h2>
+      <p class="cert-intro">Fill in the details below to submit your request. Required fields are marked with <span style="color: var(--error);">*</span>.</p>
+
+      <div id="certError" class="cert-error" role="alert"></div>
+
+      <div class="form-row">
+        <label for="certType">Certificate type <span class="req">*</span></label>
+        <select id="certType" name="certType" required>
+          <option value="">Select certificate type</option>
+          <option>Certificate of Membership</option>
+          <option>Letter of Recommendation</option>
+          <option>Trade Certificate</option>
+          <option>No Objection Certificate</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="fullName">Full name <span class="req">*</span></label>
+        <input type="text" id="fullName" name="fullName" required autocomplete="name" />
+      </div>
+
+      <div class="form-row">
+        <label for="businessName">Business / company name</label>
+        <input type="text" id="businessName" name="businessName" autocomplete="organization" />
+      </div>
+
+      <div class="form-row">
+        <label for="phone">Contact phone <span class="req">*</span></label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel" />
+      </div>
+
+      <div class="form-row">
+        <label for="email">Contact email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" required autocomplete="email" />
+      </div>
+
+      <div class="form-row">
+        <label for="purpose">Purpose / additional details</label>
+        <textarea id="purpose" name="purpose" rows="4" placeholder="Briefly describe why you need this certificate."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit request</button>
+
+      <div class="cert-note">
+        <strong>Note:</strong> This is a request form only. After submission, the Chamber office will review your request and contact you via the details provided.
+      </div>
+    </form>
+
+    <div id="certConfirmation" class="cert-confirmation hidden">
+      <div class="cert-confirmation-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+      </div>
+      <h2>Request submitted</h2>
+      <p>The Chamber office will contact you regarding your certificate within a few business days.</p>
+      <button type="button" id="anotherRequestBtn" class="cert-secondary-btn">Submit another request</button>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-brand">Chamber of Commerce Bhuj</p>
+    <p>© Chamber of Commerce Bhuj. All rights reserved.</p>
+    <p class="contact">contact@cocbhuj.org · +91 2832 XXX XXX</p>
+  </div>
+</footer>
+
+<script>
+  /* ---------- Nav toggle ---------- */
+  (function () {
+    var toggle = document.getElementById("navToggle");
+    var menu = document.getElementById("navMenu");
+    toggle.addEventListener("click", function () {
+      var open = menu.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        menu.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+
+  /* ---------- Certificate request form (UI-only, no backend) ---------- */
+  (function () {
+    var form = document.getElementById("certForm");
+    var errorBox = document.getElementById("certError");
+    var confirmation = document.getElementById("certConfirmation");
+    var anotherBtn = document.getElementById("anotherRequestBtn");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var certType = (document.getElementById("certType").value || "").trim();
+      var fullName = (document.getElementById("fullName").value || "").trim();
+      var phone = (document.getElementById("phone").value || "").trim();
+      var email = (document.getElementById("email").value || "").trim();
+
+      errorBox.classList.remove("visible");
+
+      var missing = [];
+      if (!certType) missing.push("certificate type");
+      if (!fullName) missing.push("full name");
+      if (!phone) missing.push("contact phone");
+      if (!email) missing.push("contact email");
+
+      if (missing.length > 0) {
+        errorBox.textContent = "Please fill in the required fields: " + missing.join(", ") + ".";
+        errorBox.classList.add("visible");
+        return;
+      }
+
+      // UI-only: swap form for confirmation, no network request
+      form.classList.add("hidden");
+      confirmation.classList.remove("hidden");
+      confirmation.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    anotherBtn.addEventListener("click", function () {
+      form.reset();
+      errorBox.classList.remove("visible");
+      confirmation.classList.add("hidden");
+      form.classList.remove("hidden");
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  })();
+
+  /* ---------- Site logo (from site_media) ---------- */
+  (function () {
+    if (typeof supabase === "undefined") return;
+    var SUPABASE_URL = "https://rvpiliwyqjowegmjcanr.supabase.co";
+    var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cGlsaXd5cWpvd2VnbWpjYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMDM2MjksImV4cCI6MjEwMjg3OTYyOX0.9ZQj69FLcFgqp8huYTqlWy4JGl-vYGmYZiiVUBo4Sio";
+    var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var logoImg = document.getElementById("siteLogo");
+    if (!logoImg) return;
+    supabaseClient
+      .from("site_media")
+      .select("image_url")
+      .eq("type", "logo")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .then(function (result) {
+        if (result.error) {
+          console.error("Couldn't load site logo:", result.error.message);
+          return;
+        }
+        var rows = result.data || [];
+        if (rows.length > 0 && rows[0].image_url) {
+          logoImg.onload = function () { logoImg.classList.add("loaded"); };
+          logoImg.onerror = function () { console.warn("Site logo failed to load"); };
+          logoImg.src = rows[0].image_url;
+        }
+      })
+      .catch(function (err) { console.error("Logo fetch error:", err); });
+  })();
+
+  /* ---------- Scroll reveal animations ---------- */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+        } else {
+          entry.target.classList.remove('reveal-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      observer.observe(el);
+    });
+    window.__observeReveal = function (el) {
+      if (el) observer.observe(el);
+    };
+  })();
+</script>
+
+</body>
+</html>
